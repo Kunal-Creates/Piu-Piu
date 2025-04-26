@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>about_Playz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Oswald', sans-serif;
+            background-color: #181A20;
+            color: #ffffff;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 0 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 50px 20px;
+        }
+
+        .nav-buttons {
+        display: flex;
+        justify-content: flex-end;
+        position: relative;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+        /* Hamburger Menu */
+        .hamburger {
+            position: absolute;
+            right: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: #e8f046;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(11px) rotate(45deg);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-11px) rotate(-45deg);
+        }
+
+        /* Fullscreen Menu */
+        .fullscreen-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #181A20;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .fullscreen-menu.active {
+            display: flex;
+        }
+
+        .fullscreen-menu nav ul {
+            list-style: none;
+            text-align: center;
+        }
+
+        .fullscreen-menu nav ul li {
+            margin: 20px 0;
+        }
+
+        .fullscreen-menu nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 2rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .fullscreen-menu nav ul li a:hover {
+            color: #e8f046;
+        }
+
+        header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .tagline {
+            font-size: 22px;
+            font-weight: 300;
+            color: #cccccc;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background-color: #444;
+            margin: 30px 0;
+        }
+
+        .description {
+            font-size: 18px;
+            margin-bottom: 40px;
+            max-width: 900px;
+            font-weight: 400;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            min-width: 200px;
+        }
+
+        .btn-primary {
+            background-color: #f2f25a;
+            color: #000000;
+            border: 2px solid #f2f25a;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(242, 242, 90, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: #f5f569;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 42px;
+            }
+
+            .tagline {
+                font-size: 18px;
+            }
+
+            .description {
+                font-size: 16px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .game-card {
+            background-color: #252530;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-img {
+            width: 100%;
+            height: 150px;
+            background-color: #333340;
+        }
+
+        .game-details {
+            padding: 15px;
+        }
+
+        .game-title {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .game-category {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .game-description {
+            font-size: 14px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #f2f25a;
+            color: #000;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Buttons with Hamburger -->
+        <div class="nav-buttons">
+            <button class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <!-- Fullscreen Menu -->
+            <div class="fullscreen-menu">
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Header Content -->
+        <header>
+            <h1>Playz</h1>
+            <p class="tagline">an open-source online multiplayer site</p>
+        </header>
+
+        <hr>
+
+        <main>
+            <p class="description">
+                This website has been developed to provide users with the opportunity to enjoy both single-player and multi-player online games at no cost, while ensuring complete privacy. We do not track your IP address, and all games are genuinely open-source. New games will be added every Sunday.
+            </p>
+
+            <div class="buttons">
+                <a href="#" class="btn btn-primary" id="requestBtn">Request your Game</a>
+                <a href="#" class="btn btn-secondary" id="donateBtn">$ Donate</a>
+            </div>
+
+            <div class="games-grid" id="gamesGrid">
+                <!-- Games will be dynamically added here via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sample game data
+        const games = [
+            {
+                title: "Space Invaders",
+                category: "Arcade",
+                description: "Classic space shooting game with modern graphics",
+                image: "#"
+            },
+            {
+                title: "Chess Master",
+                category: "Board Game",
+                description: "Play chess online with friends or AI opponents",
+                image: "#"
+            },
+            {
+                title: "Racing Fury",
+                category: "Racing",
+                description: "High-speed multiplayer racing with customizable cars",
+                image: "#"
+            },
+            {
+                title: "Word Challenge",
+                category: "Puzzle",
+                description: "Test your vocabulary in this fast-paced word game",
+                image: "#"
+            }
+        ];
+
+        // Function to populate games grid
+        function populateGames() {
+            const gamesGrid = document.getElementById('gamesGrid');
+            
+            games.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.className = 'game-card';
+                
+                gameCard.innerHTML = `
+                    <div class="game-img"></div>
+                    <div class="game-details">
+                        <h3 class="game-title">${game.title}</h3>
+                        <p class="game-category">${game.category}</p>
+                        <p class="game-description">${game.description}</p>
+                        <a href="#" class="play-btn">Play Now</a>
+                    </div>
+                `;
+                
+                gamesGrid.appendChild(gameCard);
+            });
+        }
+
+        // Button event listeners
+        document.getElementById('requestBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Game request feature coming soon!');
+        });
+
+        document.getElementById('donateBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Thank you for considering a donation! Donation page coming soon.');
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Uncomment to populate games grid
+            // populateGames();
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+    // Game data - replace image URLs with your actual game images later
+
+    // Hamburger menu functionality
+    const hamburger = document.querySelector('.hamburger');
+    const fullscreenMenu = document.querySelector('.fullscreen-menu');
+
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        fullscreenMenu.classList.toggle('active');
+        // Prevent scrolling when menu is open
+        document.body.style.overflow = fullscreenMenu.classList.contains('active') ? 'hidden' : 'auto';
+    });
+
+    // Close menu when clicking on a link
+    document.querySelectorAll('.fullscreen-menu nav ul li a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            fullscreenMenu.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    });
+})
+    </script>
+</body>
+</html>
