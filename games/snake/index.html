@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Classic Snake 🐍</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db; /* Bright blue */
+            --secondary-color: #2ecc71; /* Green - This is the snake head color */
+            --danger-color: #e74c3c; /* Red */
+            --background-color: #2c3e50; /* Dark blue-grey */
+            --text-color: #ecf0f1; /* Light grey */
+            --container-bg-color: #1a252f; /* Darker game area */
+            --button-shadow-color: #2980b9;
+            --button-hover-shadow-color: #27ae60;
+            --button-active-shadow-color: #1f8b4c;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; 
+            height: 100vh; 
+            margin: 0;
+            padding: 10px; 
+            box-sizing: border-box; 
+            background-color: var(--background-color);
+            font-family: 'Press Start 2P', cursive;
+            color: var(--text-color);
+            overflow: hidden; 
+            touch-action: manipulation;
+        }
+
+        #game-title {
+            font-size: clamp(20px, 5vw, 28px); 
+            margin-bottom: 10px; 
+            color: var(--primary-color);
+            text-shadow: 2px 2px #222;
+            text-align: center;
+        }
+
+        #score-display {
+            font-size: clamp(16px, 4vw, 18px); 
+            color: #f1c40f; 
+            margin-top: 0;
+            margin-bottom: 10px; 
+            text-shadow: 1px 1px #000;
+        }
+
+        #game-container {
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4); 
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: var(--container-bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            background-color: #000; /* Canvas background is black */
+            max-width: 100%; 
+            max-height: 100%;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .message-box {
+            background-color: rgba(0, 0, 0, 0.85); 
+            color: white;
+            padding: 15px; 
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            pointer-events: auto;
+            z-index: 10;
+            width: clamp(250px, 80vw, 400px); 
+            box-sizing: border-box;
+        }
+
+        .message-box h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: clamp(18px, 4.5vw, 22px); 
+            color: var(--danger-color);
+        }
+         .message-box h2.welcome {
+            color: var(--secondary-color);
+        }
+
+        .message-box p {
+            font-size: clamp(12px, 3vw, 14px); 
+            margin-bottom: 15px; 
+            line-height: 1.4;
+        }
+
+        .game-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: clamp(10px, 2.5vw, 12px) clamp(15px, 4vw, 24px); 
+            font-size: clamp(14px, 3.5vw, 16px); 
+            font-family: 'Press Start 2P', cursive;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px var(--button-shadow-color);
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            pointer-events: auto;
+            min-width: 100px; 
+        }
+
+        .game-button:hover {
+            background-color: var(--secondary-color);
+            box-shadow: 0 3px var(--button-hover-shadow-color);
+            transform: translateY(1px);
+        }
+
+        .game-button:active {
+            background-color: var(--button-hover-shadow-color); 
+            box-shadow: 0 1px var(--button-active-shadow-color);
+            transform: translateY(2px);
+        }
+
+        #touch-controls {
+            display: none; 
+            margin-top: 10px; 
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(5px, 1.5vw, 10px); 
+            width: clamp(180px, 50vw, 210px); 
+            justify-items: center;
+        }
+
+        .control-button {
+            background-color: #7f8c8d;
+            color: white;
+            border: 2px solid #bdc3c7;
+            width: clamp(45px, 12vw, 60px);  
+            height: clamp(45px, 12vw, 60px); 
+            font-size: clamp(20px, 6vw, 28px); 
+            font-family: 'Press Start 2P', cursive;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px #566573; 
+            user-select: none;
+            transition: all 0.1s ease;
+        }
+        .control-button:active {
+            background-color: #95a5a6;
+            box-shadow: 0 1px #566573;
+            transform: translateY(2px);
+        }
+        #touch-controls .empty-cell { visibility: hidden; }
+        #btn-up    { grid-column: 2; grid-row: 1; }
+        #btn-left  { grid-column: 1; grid-row: 2; }
+        #btn-right { grid-column: 3; grid-row: 2; }
+        #btn-down  { grid-column: 2; grid-row: 2; }
+
+        .back-button {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        z-index: 9999;
+    }
+    
+    .back-button a {
+        color: white;
+        text-decoration: none;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    }
+    
+    .back-button:hover {
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+    </style>
+</head>
+<body>
+    <div id="game-title">Classic Snake 🐍</div>
+    <div id="score-display">Score: 0</div>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-layer">
+            <div id="start-screen" class="message-box" style="display: flex;"> <h2 class="welcome">Welcome!</h2>
+                <p>Use Arrow Keys or Tap Controls. Eat 🍎 to grow!</p>
+                <button id="startButton" class="game-button">Start</button>
+            </div>
+            <div id="game-over-screen" class="message-box">
+                <h2>Game Over!</h2>
+                <p>Score: <span id="final-score">0</span></p>
+                <button id="restartButton" class="game-button">Restart</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="touch-controls">
+        <div class="empty-cell"></div> <button class="control-button" id="btn-up">▲</button> <div class="empty-cell"></div>
+        <button class="control-button" id="btn-left">◄</button>
+        <button class="control-button" id="btn-down">▼</button>
+        <button class="control-button" id="btn-right">►</button>
+    </div>
+
+    <script>
+        // Canvas and context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // UI Elements
+        const scoreDisplay = document.getElementById('score-display');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const touchControlsContainer = document.getElementById('touch-controls');
+
+        // Game constants and variables
+        const foodChar = '🍎';
+        let actualSnakeHeadColor = '#2ecc71'; // Default Green, will be updated from CSS
+        const snakeBodyColor = '#27ae60'; // Darker Green (direct hex is fine)
+
+        let gridSize; // Size of each cell in the grid
+        let tileCountX, tileCountY; // Number of tiles in X and Y direction
+        
+        let snake, food, score, direction, nextDirection, gameSpeed, gameLoopTimeoutId;
+        let gameRunning = false;
+
+        const INITIAL_SPEED = 160; // Milliseconds per update, lower is faster
+        const SPEED_INCREMENT = 2.5; // Milliseconds to decrease per food item, making game faster
+
+        // Function to get the actual color value from CSS variables for the snake's head
+        function updateColorsFromCSS() {
+            try {
+                const rootStyle = getComputedStyle(document.documentElement);
+                const colorValue = rootStyle.getPropertyValue('--secondary-color').trim();
+                if (colorValue) { 
+                    actualSnakeHeadColor = colorValue;
+                } else {
+                    console.warn("Could not retrieve --secondary-color from CSS, using default.");
+                    actualSnakeHeadColor = '#2ecc71'; // Fallback
+                }
+            } catch (e) {
+                console.error("Error retrieving color from CSS:", e);
+                actualSnakeHeadColor = '#2ecc71'; // Fallback
+            }
+        }
+
+        // Calculate canvas and grid dimensions based on available screen space
+        function calculateGrid() {
+            const gameContainer = document.getElementById('game-container');
+            // Calculate heights of elements outside the game canvas to determine available space
+            const scoreDisplayHeight = scoreDisplay.offsetHeight + parseInt(getComputedStyle(scoreDisplay).marginBottom);
+            const titleHeight = document.getElementById('game-title').offsetHeight + parseInt(getComputedStyle(document.getElementById('game-title')).marginBottom);
+            const touchControlsHeight = isTouchDevice() ? (touchControlsContainer.offsetHeight + parseInt(getComputedStyle(touchControlsContainer).marginTop)) : 0;
+            
+            // Calculate available space for the canvas, considering padding and other elements
+            let availableHeightForCanvas = window.innerHeight - titleHeight - scoreDisplayHeight - touchControlsHeight - 40; // 40px for body padding and buffer
+            let availableWidthForCanvas = window.innerWidth - 20; // 20px for body padding
+
+            // Determine canvas size, aiming for a square-ish canvas, fitting the smaller dimension, max 500px
+            let canvasSize = Math.min(availableWidthForCanvas, availableHeightForCanvas, 500); 
+
+            if (canvasSize <= 0) { // Fallback if calculation is off
+                canvasSize = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.5, 300);
+            }
+
+            // Determine grid cell size based on canvas size
+            if (canvasSize < 200) gridSize = 10; 
+            else if (canvasSize < 300) gridSize = 15;
+            else if (canvasSize < 400) gridSize = 20;
+            else gridSize = 25;
+
+            // Ensure canvas dimensions are multiples of gridSize for a clean grid
+            canvas.width = Math.floor(canvasSize / gridSize) * gridSize;
+            canvas.height = Math.floor(canvasSize / gridSize) * gridSize;
+
+            // Set game container dimensions to fit the canvas
+            gameContainer.style.width = `${canvas.width}px`;
+            gameContainer.style.height = `${canvas.height}px`;
+
+            // Update tile counts based on new dimensions
+            tileCountX = canvas.width / gridSize;
+            tileCountY = canvas.height / gridSize;
+        }
+
+        // Initialize game state (or reset for a new game)
+        function initGame() {
+            updateColorsFromCSS(); // Ensure snake head color is current
+            // Start snake in the middle of the grid
+            snake = [{ x: Math.floor(tileCountX / 2), y: Math.floor(tileCountY / 2) }];
+            placeFood(); // Place the first food item
+            score = 0;
+            direction = 'RIGHT'; // Initial direction
+            nextDirection = 'RIGHT'; // Buffer for next direction input
+            gameSpeed = INITIAL_SPEED;
+            updateScoreDisplay();
+            if (gameLoopTimeoutId) clearTimeout(gameLoopTimeoutId); // Clear any existing game loop
+        }
+
+        // Place food at a random position on the grid, not on the snake
+        function placeFood() {
+            if (tileCountX <=0 || tileCountY <=0) return; // Avoid error if grid not ready
+            food = {
+                x: Math.floor(Math.random() * tileCountX),
+                y: Math.floor(Math.random() * tileCountY)
+            };
+            // Ensure food doesn't spawn on the snake
+            for (let segment of snake) {
+                if (segment.x === food.x && segment.y === food.y) {
+                    placeFood(); // Try placing again
+                    return;
+                }
+            }
+        }
+
+        // Draw all game elements on the canvas
+        function drawGame() {
+            // Ensure canvas has valid dimensions before trying to draw
+            if (canvas.width <= 0 || canvas.height <= 0 || tileCountX <= 0 || tileCountY <= 0) {
+                return; 
+            }
+
+            // Clear canvas with black background
+            ctx.fillStyle = '#000'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw snake only if game is running and snake exists
+            if (gameRunning && snake && snake.length > 0) {
+                snake.forEach((segment, index) => {
+                    ctx.fillStyle = (index === 0) ? actualSnakeHeadColor : snakeBodyColor; // Head is different color
+                    // Draw segment, slightly smaller than grid cell for a visual gap
+                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 1, gridSize - 1); 
+                    
+                    // Draw eyes on the snake's head
+                    if (index === 0) { 
+                        ctx.fillStyle = '#000'; // Eye color
+                        let eyeSize = Math.max(2, gridSize / 6); // Scale eye size
+                        let eyeOffset = gridSize / 3.5; // Offset from cell edge
+                        let eye1X, eye1Y, eye2X, eye2Y; // Coordinates for the two eyes
+
+                        // Position eyes based on current direction of the snake
+                        const segX = segment.x * gridSize; // Current segment's X position on canvas
+                        const segY = segment.y * gridSize; // Current segment's Y position on canvas
+
+                        if (direction === 'UP') {
+                            eye1X = segX + eyeOffset;
+                            eye1Y = segY + eyeOffset;
+                            eye2X = segX + gridSize - eyeOffset - eyeSize; 
+                            eye2Y = segY + eyeOffset;
+                        } else if (direction === 'DOWN') {
+                            eye1X = segX + eyeOffset;
+                            eye1Y = segY + gridSize - eyeOffset - eyeSize; 
+                            eye2X = segX + gridSize - eyeOffset - eyeSize; 
+                            eye2Y = segY + gridSize - eyeOffset - eyeSize; 
+                        } else if (direction === 'LEFT') {
+                            eye1X = segX + eyeOffset;
+                            eye1Y = segY + eyeOffset;
+                            eye2X = segX + eyeOffset;
+                            eye2Y = segY + gridSize - eyeOffset - eyeSize; 
+                        } else { // RIGHT
+                            eye1X = segX + gridSize - eyeOffset - eyeSize; 
+                            eye1Y = segY + eyeOffset;
+                            eye2X = segX + gridSize - eyeOffset - eyeSize; 
+                            eye2Y = segY + gridSize - eyeOffset - eyeSize; 
+                        }
+                        ctx.fillRect(eye1X, eye1Y, eyeSize, eyeSize);
+                        ctx.fillRect(eye2X, eye2Y, eyeSize, eyeSize);
+                    }
+                });
+            }
+
+            // Draw food only if game is running and food exists
+            if (gameRunning && food) {
+                ctx.font = `${gridSize * 0.8}px Arial`; // Scale food emoji with grid size
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // Adjust Y offset for emoji to center it better within the cell
+                ctx.fillText(foodChar, food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2 + gridSize * 0.1);
+            }
+        }
+
+        // Main game loop: updates game state and redraws
+        function updateGame() {
+            if (!gameRunning) return; // Stop loop if game is not running
+
+            direction = nextDirection; // Apply the buffered direction change
+
+            // Calculate new head position
+            let headX = snake[0].x;
+            let headY = snake[0].y;
+
+            if (direction === 'UP') headY--;
+            if (direction === 'DOWN') headY++;
+            if (direction === 'LEFT') headX--;
+            if (direction === 'RIGHT') headX++;
+
+            // Check for wall collision
+            if (headX < 0 || headX >= tileCountX || headY < 0 || headY >= tileCountY) {
+                gameOver();
+                return;
+            }
+
+            // Check for self-collision (hitting its own body)
+            for (let i = 1; i < snake.length; i++) {
+                if (headX === snake[i].x && headY === snake[i].y) {
+                    gameOver();
+                    return;
+                }
+            }
+
+            // Add new head to the snake
+            const newHead = { x: headX, y: headY };
+            snake.unshift(newHead);
+
+            // Check for food consumption
+            if (headX === food.x && headY === food.y) {
+                score++;
+                updateScoreDisplay();
+                placeFood(); // Place new food
+                if (gameSpeed > 60) { // Increase speed, with a max speed cap
+                    gameSpeed -= SPEED_INCREMENT;
+                }
+            } else {
+                snake.pop(); // Remove tail if no food eaten (snake moves)
+            }
+
+            drawGame(); // Redraw the game state
+            gameLoopTimeoutId = setTimeout(updateGame, gameSpeed); // Schedule next update
+        }
+
+        // Update the score display on the screen
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        // Handles the flow of starting a new game
+        function startGameFlow() {
+            calculateGrid(); // Ensure grid is correct for current screen size
+            initGame(); 
+            gameRunning = true;
+            // Hide start/game over screens, show score
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            scoreDisplay.style.display = 'block';
+            // Show touch controls if on a touch device
+            if (isTouchDevice()) {
+                touchControlsContainer.style.display = 'grid';
+            }
+            updateGame(); // Start the game loop
+        }
+        
+        // Handles the game over state
+        function gameOver() {
+            gameRunning = false;
+            if (gameLoopTimeoutId) clearTimeout(gameLoopTimeoutId); // Stop the game loop
+            finalScoreDisplay.textContent = score; // Show final score
+            gameOverScreen.style.display = 'flex'; // Show game over message box
+            scoreDisplay.style.display = 'block'; // Keep score visible
+            // Hide touch controls on game over
+            if (isTouchDevice()) { 
+                 touchControlsContainer.style.display = 'none';
+            }
+        }
+
+        // Handle keyboard input for snake movement
+        function handleKeyPress(e) {
+            const key = e.key;
+            // Allow starting game with Enter/Space from start or game over screens
+            if (!gameRunning && (startScreen.style.display === 'flex' || gameOverScreen.style.display === 'flex')) {
+                if (key === 'Enter' || key === ' ') {
+                    e.preventDefault(); // Prevent space from scrolling page
+                    startGameFlow();
+                }
+                return;
+            }
+
+            if (!gameRunning) return; // Ignore input if game not running
+
+            // Update nextDirection based on arrow keys or WASD, preventing 180-degree turns
+            if ((key === 'ArrowUp' || key.toLowerCase() === 'w') && direction !== 'DOWN') nextDirection = 'UP';
+            else if ((key === 'ArrowDown' || key.toLowerCase() === 's') && direction !== 'UP') nextDirection = 'DOWN';
+            else if ((key === 'ArrowLeft' || key.toLowerCase() === 'a') && direction !== 'RIGHT') nextDirection = 'LEFT';
+            else if ((key === 'ArrowRight' || key.toLowerCase() === 'd') && direction !== 'LEFT') nextDirection = 'RIGHT';
+        }
+        
+        // Check if the device supports touch events
+        function isTouchDevice() {
+            return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startGameFlow);
+        restartButton.addEventListener('click', startGameFlow);
+        document.addEventListener('keydown', handleKeyPress);
+
+        // Setup touch control buttons if on a touch device
+        if (isTouchDevice()) {
+            document.getElementById('btn-up').addEventListener('click', () => { if (gameRunning && direction !== 'DOWN') nextDirection = 'UP'; });
+            document.getElementById('btn-down').addEventListener('click', () => { if (gameRunning && direction !== 'UP') nextDirection = 'DOWN'; });
+            document.getElementById('btn-left').addEventListener('click', () => { if (gameRunning && direction !== 'RIGHT') nextDirection = 'LEFT'; });
+            document.getElementById('btn-right').addEventListener('click', () => { if (gameRunning && direction !== 'LEFT') nextDirection = 'RIGHT'; });
+        } else {
+            touchControlsContainer.style.display = 'none'; // Ensure controls are hidden on non-touch devices
+        }
+        
+        // Handle window resize events
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout); // Debounce resize event to avoid rapid calls
+            resizeTimeout = setTimeout(() => {
+                // *** FIX: Store old tile counts BEFORE calculateGrid updates them globally ***
+                const oldTilesX = tileCountX; 
+                const oldTilesY = tileCountY;
+
+                calculateGrid(); // Recalculate grid and canvas size for new window size
+                
+                if (gameRunning && snake && snake.length > 0) {
+                    // If game is running, attempt to scale snake and food positions
+                    if (oldTilesX > 0 && oldTilesY > 0) { // Ensure old dimensions were valid
+                        snake.forEach(segment => {
+                            // Scale position by the ratio of new tile count to old tile count
+                            segment.x = Math.round(segment.x * (tileCountX / oldTilesX));
+                            segment.y = Math.round(segment.y * (tileCountY / oldTilesY));
+                            // Clamp positions to stay within new grid boundaries
+                            segment.x = Math.max(0, Math.min(segment.x, tileCountX - 1));
+                            segment.y = Math.max(0, Math.min(segment.y, tileCountY - 1));
+                        });
+                        if (food) { // Scale food position similarly
+                            food.x = Math.round(food.x * (tileCountX / oldTilesX));
+                            food.y = Math.round(food.y * (tileCountY / oldTilesY));
+                            food.x = Math.max(0, Math.min(food.x, tileCountX - 1));
+                            food.y = Math.max(0, Math.min(food.y, tileCountY - 1));
+                        }
+                    } else {
+                        // Fallback if old dimensions were invalid: re-center snake and place new food
+                        snake = [{ x: Math.floor(tileCountX / 2), y: Math.floor(tileCountY / 2) }];
+                        if (food) placeFood(); 
+                    }
+                    drawGame(); // Redraw game with new positions
+                } else {
+                    // If game not running (e.g., on start or game over screen), just redraw the static state
+                    drawGame(); 
+                }
+
+                // Ensure touch controls are displayed correctly based on device type and game state
+                if (isTouchDevice() && gameRunning) {
+                    touchControlsContainer.style.display = 'grid';
+                } else if (isTouchDevice() && !gameRunning && startScreen.style.display === 'flex') {
+                     touchControlsContainer.style.display = 'grid'; // Show on start screen for touch
+                }
+                else if (!isTouchDevice()){
+                    touchControlsContainer.style.display = 'none';
+                }
+            }, 250); // Debounce timeout of 250ms
+        });
+
+        // --- Initial Setup ---
+        calculateGrid(); // Calculate initial grid and canvas size
+        updateColorsFromCSS(); // Get snake head color from CSS variables
+        drawGame(); // Draw initial empty board (snake/food won't be drawn as gameRunning is false)
+        
+        // Show touch controls on start screen if it's a touch device
+        if (isTouchDevice() && startScreen.style.display === 'flex') {
+            touchControlsContainer.style.display = 'grid';
+        }
+
+    </script>
+    <div class="back-button">
+        <a href="../../index.html">← Back to Games</a>
+    </div>
+</body>
+</html>
