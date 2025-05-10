@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'color-chaser', name: 'Color Chaser', image: 'Images/color-chaser.png' },
             { id: 'snake', name: 'Classical Snake', image: 'Images/classical-snake.png' },
             { id: 'tetris', name: 'Tetris Puzzle', image: 'Images/Tetris.png' },
-            { id: 'asphalt', name: 'Asphalt', image: 'placeholder-5.jpg' },
+            { id: 'whack-a-hole', name: 'Whack a Hole', image: 'Images/Whack-a-Hole.png' },
             { id: 'chicago', name: 'Chicago', image: 'placeholder-6.jpg' },
             { id: 'temple-run', name: 'Temple Run', image: 'placeholder-7.jpg' },
             { id: 'crush-it-2', name: 'Crush It 2', image: 'placeholder-1.jpg' },
