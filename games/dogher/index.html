@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Dodger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Hide scrollbars */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a202c; /* Dark background */
+            font-family: 'Press Start 2P', cursive;
+            color: #ffffff;
+            flex-direction: column;
+        }
+
+        canvas {
+            background-color: #000000; /* Black game area */
+            display: block;
+            /* Use JavaScript to set canvas size for responsiveness */
+            image-rendering: crisp-edges; /* Keep pixels sharp */
+            image-rendering: pixelated; /* Keep pixels sharp */
+            border: 4px solid #ffffff; /* White border */
+            box-sizing: border-box;
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        #start-screen,
+        #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+
+        #game-over-screen {
+             display: none; /* Hidden by default */
+        }
+
+        #start-screen button,
+        #game-over-screen button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            background-color: #4a5568; /* Gray button */
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            border-radius: 8px; /* Rounded corners */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 4px 4px 0 #ffffff; /* Pixelated shadow */
+        }
+
+        #start-screen button:hover,
+        #game-over-screen button:hover {
+            background-color: #2d3748; /* Darker gray on hover */
+        }
+
+        /* Simple touch controls indicator (optional) */
+        #touch-controls-hint {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #a0aec0; /* Light gray */
+            text-align: center;
+        }
+
+        /* Initially hide game elements */
+        #gameCanvas, #score, #touch-controls-hint {
+            display: none;
+        }
+
+        .back-button {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background-color: rgba(150, 150, 150, 0.7);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        z-index: 9999;
+    }
+    
+    .back-button a {
+        color: white;
+        text-decoration: none;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    }
+    
+    .back-button:hover {
+        background-color: rgba(150, 150, 150, 0.9);
+    }
+
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        Pixel Dodger
+        <button id="start-button">Start Game</button>
+    </div>
+
+    <div id="score">Score: 0</div>
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="game-over-screen">
+        Game Over!
+        <div id="final-score" class="mt-4">Final Score: 0</div>
+        <button id="restart-button">Restart</button>
+    </div>
+
+    <div id="touch-controls-hint">Tap left/right side of screen to move</div>
+
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const startScreen = document.getElementById('start-screen'); // Get start screen element
+        const startGameButton = document.getElementById('start-button'); // Get start button element
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        const touchControlsHint = document.getElementById('touch-controls-hint'); // Get touch hint
+
+        // Game variables
+        let player;
+        let obstacles = [];
+        let score = 0;
+        let gameRunning = false; // Game starts as not running
+        let obstacleSpeed = 4;
+        let obstacleFrequency = 500;
+        let lastObstacleTime = 0;
+        let keys = {}; // To track pressed keys
+
+        // Player properties
+        const playerSize = 20;
+        const playerSpeed = 5;
+
+        // Obstacle properties
+        const obstacleSize = 20;
+
+        // Function to resize canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * 0.8; // 80% of window width
+            canvas.height = window.innerHeight * 0.6; // 60% of window height
+            // Ensure canvas dimensions are multiples of pixel size for crispness
+            canvas.width = Math.floor(canvas.width / playerSize) * playerSize;
+            canvas.height = Math.floor(canvas.height / playerSize) * playerSize;
+
+            // Reset player position on resize
+            if (player) {
+                 player.x = canvas.width / 2 - playerSize / 2;
+                 player.y = canvas.height - playerSize * 2; // Start above bottom
+            } else {
+                // Initialize player if not already done
+                player = {
+                    x: canvas.width / 2 - playerSize / 2,
+                    y: canvas.height - playerSize * 2,
+                    size: playerSize,
+                    speed: playerSpeed
+                };
+            }
+
+             // Clear and redraw everything after resize if game is running
+             if (gameRunning) {
+                draw();
+             }
+        }
+
+        // Player object - Initialized in resizeCanvas now
+        player = null; // Set to null initially
+
+        // Obstacle class
+        class Obstacle {
+            constructor(x, y, size, speed) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.speed = speed;
+            }
+
+            update() {
+                this.y += this.speed;
+            }
+
+            draw() {
+                ctx.fillStyle = '#ff0000'; // Red obstacle
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        // Draw game elements
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player if it exists
+            if (player) {
+                ctx.fillStyle = '#00ff00'; // Green player
+                ctx.fillRect(player.x, player.y, player.size, player.size);
+            }
+
+
+            // Draw obstacles
+            obstacles.forEach(obstacle => {
+                obstacle.draw();
+            });
+        }
+
+        // Update game state
+        function update(deltaTime) {
+            if (!gameRunning) return;
+
+            // Update score based on time
+            score += deltaTime / 100; // Increase score over time
+            scoreDisplay.textContent = `Score: ${Math.floor(score)}`;
+
+            // Player movement
+            if (keys['ArrowLeft'] || keys['a']) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] || keys['d']) {
+                player.x += player.speed;
+            }
+
+            // Prevent player from going out of bounds
+            player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+
+            // Generate new obstacles
+            const currentTime = Date.now();
+            if (currentTime - lastObstacleTime > obstacleFrequency) {
+                const obstacleX = Math.random() * (canvas.width - obstacleSize);
+                obstacles.push(new Obstacle(obstacleX, -obstacleSize, obstacleSize, obstacleSpeed));
+                lastObstacleTime = currentTime;
+
+                // Increase difficulty over time (obstacle speed and frequency)
+                obstacleSpeed += 0.02; // Increased rate of speed increase
+                obstacleFrequency = Math.max(300, obstacleFrequency - 10); // Decreased lower limit and increased rate of frequency decrease
+            }
+
+            // Update and remove off-screen obstacles
+            obstacles.forEach((obstacle, index) => {
+                obstacle.update();
+                if (obstacle.y > canvas.height) {
+                    obstacles.splice(index, 1);
+                }
+            });
+
+            // Check for collisions
+            checkCollisions();
+        }
+
+        // Check for collisions between player and obstacles
+        function checkCollisions() {
+            obstacles.forEach(obstacle => {
+                if (player.x < obstacle.x + obstacle.size &&
+                    player.x + player.size > obstacle.x &&
+                    player.y < obstacle.y + obstacle.size &&
+                    player.y + player.size > obstacle.y) {
+                    // Collision detected! Game over.
+                    gameOver();
+                }
+            });
+        }
+
+        // Game over function
+        function gameOver() {
+            gameRunning = false;
+            finalScoreDisplay.textContent = `Final Score: ${Math.floor(score)}`;
+            // Hide game elements and show game over screen
+            canvas.style.display = 'none';
+            scoreDisplay.style.display = 'none';
+            touchControlsHint.style.display = 'none';
+            gameOverScreen.style.display = 'flex';
+        }
+
+        // Restart game function
+        function restartGame() {
+            gameRunning = true;
+            score = 0;
+            obstacles = [];
+            // Reset to the new, higher initial difficulty values
+            obstacleSpeed = 4;
+            obstacleFrequency = 500;
+            lastObstacleTime = 0;
+            gameOverScreen.style.display = 'none';
+            // Show game elements
+            canvas.style.display = 'block';
+            scoreDisplay.style.display = 'block';
+             if ('ontouchstart' in window || navigator.maxTouchPoints) {
+                touchControlsHint.style.display = 'block'; // Show touch hint if on touch device
+            }
+            resizeCanvas(); // Reset player position and canvas size
+            gameLoop(0); // Start the game loop again
+        }
+
+        // Function to start the game
+        function startGame() {
+            gameRunning = true;
+            startScreen.style.display = 'none'; // Hide start screen
+            // Show game elements
+            canvas.style.display = 'block';
+            scoreDisplay.style.display = 'block';
+            if ('ontouchstart' in window || navigator.maxTouchPoints) {
+                touchControlsHint.style.display = 'block'; // Show touch hint if on touch device
+            }
+            resizeCanvas(); // Set initial canvas size and player position
+            gameLoop(0); // Start the game loop
+        }
+
+
+        // Event listeners for keyboard controls
+        window.addEventListener('keydown', (e) => {
+            if (gameRunning) { // Only process input if game is running
+                 keys[e.key] = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+             if (gameRunning) { // Only process input if game is running
+                keys[e.key] = false;
+             }
+        });
+
+        // Event listener for touch controls
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameRunning) { // Only process input if game is running
+                e.preventDefault(); // Prevent default touch behavior (like scrolling)
+                const touchX = e.touches[0].clientX;
+                const canvasRect = canvas.getBoundingClientRect();
+
+                if (touchX < canvasRect.left + canvasRect.width / 2) {
+                    // Tap on the left half
+                    keys['ArrowLeft'] = true;
+                    keys['ArrowRight'] = false;
+                } else {
+                    // Tap on the right half
+                    keys['ArrowRight'] = true;
+                    keys['ArrowLeft'] = false;
+                }
+            }
+        });
+
+         canvas.addEventListener('touchend', (e) => {
+             if (gameRunning) { // Only process input if game is running
+                e.preventDefault();
+                keys['ArrowLeft'] = false;
+                keys['ArrowRight'] = false;
+             }
+         });
+
+
+        // Event listener for start and restart buttons
+        startGameButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', restartGame);
+
+        // Game loop
+        let lastTime = 0;
+        function gameLoop(currentTime) {
+            if (!gameRunning) return;
+
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+
+            update(deltaTime);
+            draw();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initial setup - just show the start screen
+        window.onload = function () {
+             // Check if on a touch device and show hint if needed
+            if ('ontouchstart' in window || navigator.maxTouchPoints) {
+                // The hint is initially hidden in CSS, will be shown when game starts
+            } else {
+                touchControlsHint.style.display = 'none'; // Hide touch hint on non-touch devices
+            }
+             // The start screen is shown by default via CSS
+        }
+
+        
+    </script>
+    <div class="back-button">
+    <a href="../../index.html">← Back to Games</a>
+</div>
+</body>
+</html>
