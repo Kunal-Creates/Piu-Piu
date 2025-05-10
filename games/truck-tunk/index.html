@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#333333">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Truck Trunk</title>
     
     <style>
@@ -20,12 +23,16 @@
         
         #game-container {
             position: relative;
-            width: 800px;
-            height: 600px;
+            width: 100%;
+            max-width: 800px;
+            height: 100vh;
+            max-height: 600px;
             background-color: #87CEEB;
             overflow: hidden;
-            border: 10px solid #444;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 5px solid #333;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+            border-radius: 10px;
         }
         
         #player {
@@ -479,6 +486,85 @@
                 opacity: 0;
             }
         }
+        .mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: none;
+            z-index: 50;
+        }
+        
+        .mobile-controls button {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            border-radius: 50%;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        #shoot-btn {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+        
+        #boost-btn {
+            background-color: rgba(0, 0, 255, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-controls {
+                display: flex;
+            }
+            
+            #game-container {
+                height: 100vh;
+                border-width: 5px;
+            }
+            
+            #score-display,
+            #fuel-display,
+            #altitude-display {
+                font-size: 14px;
+                padding: 5px;
+            }
+            
+            #fuel-bar {
+                width: 100px;
+            }
+            
+            #start-screen h1 {
+                font-size: 24px;
+            }
+            
+            #start-screen p {
+                font-size: 14px;
+            }
+            
+            #start-screen button,
+            #game-over button {
+                font-size: 18px;
+            }
+            
+            .back-button {
+                bottom: 10px;
+                left: 10px;
+                padding: 5px 10px;
+            }
+        }
+        /* Prevent unwanted touch actions on game container */
+        #game-container {
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -511,8 +597,10 @@
             <button id="restart-button">Play Again</button>
         </div>
         <div id="start-screen">
-            <h1>Minecraft Flying Car Adventure</h1>
-            <p>Use the UP and DOWN arrow keys or W and S to control your flying car's altitude. Press SPACE to boost speed but beware of fuel consumption! Collect gold coins and fuel cans while avoiding obstacles.</p>
+            <h1>Truck Trunk</h1>
+            <p>On desktop: Use UP/DOWN arrows or W/S keys to control altitude. Press SPACE to shoot and SHIFT for boost.</p>
+            <p>On mobile: Touch and drag to control altitude. Use SHOOT and BOOST buttons.</p>
+            <p>Collect coins and fuel while avoiding obstacles!</p>
             <button id="start-button">Start Game</button>
         </div>
     </div>
@@ -828,7 +916,75 @@
                     // Remove particle after animation
                     setTimeout(() => particle.remove(), 500);
                 }
+                
+                // Create explosion effect
+                createExplosion(x + rect.width/2, y + rect.height/2);
             }
+            
+            // Mobile touch controls
+            let touchStartY = 0;
+            
+            gameContainer.addEventListener('touchstart', function(e) {
+                if (!isGameStarted) return;
+                e.preventDefault();
+                touchStartY = e.touches[0].clientY;
+            });
+            
+            gameContainer.addEventListener('touchmove', function(e) {
+                if (!isGameStarted) return;
+                e.preventDefault();
+                const touchY = e.touches[0].clientY;
+                const touchRect = gameContainer.getBoundingClientRect();
+                const touchOffset = touchY - touchRect.top;
+                
+                // Clear previous controls
+                controls.up = false;
+                controls.down = false;
+                
+                // Determine direction based on touch position
+                if (touchY < touchStartY - 20) {
+                    controls.up = true;
+                } else if (touchY > touchStartY + 20) {
+                    controls.down = true;
+                }
+            });
+            
+            gameContainer.addEventListener('touchend', function(e) {
+                if (!isGameStarted) return;
+                e.preventDefault();
+                controls.up = false;
+                controls.down = false;
+            });
+            
+            // Add mobile control buttons
+            const mobileControls = document.createElement('div');
+            mobileControls.className = 'mobile-controls';
+            mobileControls.innerHTML = `
+                <button id="shoot-btn">SHOOT</button>
+                <button id="boost-btn">BOOST</button>
+            `;
+            gameContainer.appendChild(mobileControls);
+            
+            document.getElementById('shoot-btn').addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                controls.shoot = true;
+                shoot();
+            });
+            
+            document.getElementById('shoot-btn').addEventListener('touchend', function(e) {
+                e.preventDefault();
+                controls.shoot = false;
+            });
+            
+            document.getElementById('boost-btn').addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                controls.boost = true;
+            });
+            
+            document.getElementById('boost-btn').addEventListener('touchend', function(e) {
+                e.preventDefault();
+                controls.boost = false;
+            });
             
             // Move player
             function movePlayer(deltaTime) {
@@ -844,6 +1000,14 @@
                     verticalSpeed *= 0.97; // Damping
                 }
                 
+                // End game if fuel is depleted
+                if (fuel <= 0 && playerY + playerHeight < gameHeight - groundHeight) {
+                    verticalSpeed += gravity * 2; // Fall faster when out of fuel
+                    if (playerY + playerHeight > gameHeight - groundHeight) {
+                        gameOver();
+                    }
+                }
+
                 // Apply gravity
                 verticalSpeed += gravity - lift;
                 
@@ -895,16 +1059,20 @@
                 if ((controls.up || boostActive) && fuel > 0) {
                     fuel -= fuelConsumption * (boostActive ? 2 : 1);
                     fuel = Math.max(fuel, 0);
-                    fuelLevel.style.width = (fuel / maxFuel * 100) + '%';
-                    
-                    // Change color based on fuel level
-                    if (fuel < 30) {
-                        fuelLevel.style.backgroundColor = '#F44336';
-                    } else if (fuel < 60) {
-                        fuelLevel.style.backgroundColor = '#FFC107';
-                    } else {
-                        fuelLevel.style.backgroundColor = '#4CAF50';
-                    }
+                } else if (fuel < maxFuel) {
+                    // Slowly recover fuel when not using it
+                    fuel += 0.05;
+                    fuel = Math.min(fuel, maxFuel);
+                }
+                fuelLevel.style.width = (fuel / maxFuel * 100) + '%';
+                
+                // Change color based on fuel level
+                if (fuel < 30) {
+                    fuelLevel.style.backgroundColor = '#F44336';
+                } else if (fuel < 60) {
+                    fuelLevel.style.backgroundColor = '#FFC107';
+                } else {
+                    fuelLevel.style.backgroundColor = '#4CAF50';
                 }
                 
                 // Create exhaust particles when boosting
@@ -959,15 +1127,53 @@
                 gameOverScreen.style.display = 'flex';
             }
             
-            // Update score
+             // Update score with progressive difficulty
             function updateScore(points) {
                 score += points;
                 scoreDisplay.innerText = 'Score: ' + score;
                 
                 // Increase game speed based on score
                 maxGameSpeed = Math.min(12, 5 + score / 50);
+                
+                // Make obstacles appear more frequently as score increases
                 obstacleInterval = Math.max(800, 1500 - score);
+                
+                // Make coins appear more frequently too
+                coinInterval = Math.max(1000, 2000 - score / 2);
+                
+                // Increase fuel consumption slightly with higher scores
+                fuelConsumption = 0.1 + (score / 1000);
             }
+
+            // Resize handler for responsiveness
+            function handleResize() {
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+                
+                // Update game dimensions
+                gameHeight = gameContainer.offsetHeight;
+                groundHeight = ground.offsetHeight;
+                
+                // Recalculate player boundaries
+                const minY = 20;
+                const maxY = gameHeight - playerHeight - 20;
+                
+                // Ensure player is within bounds after resize
+                playerY = Math.min(Math.max(playerY, minY), maxY);
+                player.style.top = playerY + 'px';
+                
+                // Adjust game speed for smaller screens
+                if (windowWidth < 500) {
+                    maxGameSpeed = 10; // Slightly slower on small screens
+                } else {
+                    maxGameSpeed = 12;
+                }
+            }
+            
+            // Listen for resize events
+            window.addEventListener('resize', handleResize);
+            // Initial call to set up correct dimensions
+            handleResize();
             
             // Reset game
             function resetGame() {
@@ -1151,6 +1357,26 @@
             
             // Initialize ground
             initGround();
+            // Performance optimization
+            function optimizePerformance() {
+                // Remove old elements that are far off-screen
+                const oldElements = document.querySelectorAll('.obstacle, .coin, .cloud, .fuel');
+                oldElements.forEach(el => {
+                    const rightPos = parseFloat(el.style.right || "0");
+                    if (rightPos > gameContainer.offsetWidth + 200) {
+                        el.remove();
+                    }
+                });
+                
+                // Limit the number of bullets
+                while (bullets.length > 5) {
+                    bullets[0].remove();
+                    bullets.shift();
+                }
+            }
+            
+            // Call optimization every second
+            setInterval(optimizePerformance, 1000);
         });
     </script>
     <style>
