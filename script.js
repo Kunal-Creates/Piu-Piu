@@ -34,16 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
         ],
         multi: [
-            { id: 'multi-race', name: 'Multi Race', image: 'placeholder-8.jpg' },
-            { id: 'battle-royale', name: 'Battle Royale', image: 'placeholder-9.jpg' },
-            { id: 'team-fortress', name: 'Team Fortress', image: 'placeholder-10.jpg' },
-            { id: 'pubg-clone', name: 'PUBG Clone', image: 'placeholder-11.jpg' },
+            { id: 'tic-tac-toe', name: 'Tic-Tac-Toe', image: 'Images/tic-tac-toe.png' },
             { id: 'rocket-league', name: 'Rocket League', image: 'placeholder-12.jpg' },
-            { id: 'fortnite-clone', name: 'Fortnite Clone', image: 'placeholder-13.jpg' },
-            { id: 'among-us', name: 'Among Us', image: 'placeholder-14.jpg' },
-            { id: 'fall-guys', name: 'Fall Guys', image: 'placeholder-15.jpg' },
-            { id: 'chess-online', name: 'Chess Online', image: 'placeholder-16.jpg' },
-            { id: 'uno-online', name: 'UNO Online', image: 'placeholder-17.jpg' }
+            { id: 'chess-retro', name: 'Retro Chess', image: 'Images/chess.png' },
         ]
     };
 
