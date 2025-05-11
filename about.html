@@ -12,41 +12,35 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Oswald', sans-serif;
         }
 
         body {
-            font-family: 'Oswald', sans-serif;
             background-color: #181A20;
             color: #ffffff;
-            line-height: 1.6;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 0 20px;
         }
 
         .container {
             width: 100%;
             max-width: 1200px;
-            padding: 50px 20px;
+            padding: 20px;
         }
 
         .nav-buttons {
-        display: flex;
-        justify-content: flex-end;
-        position: relative;
-        width: 100%;
-        margin-bottom: 20px;
-    }
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 1rem 2rem;
+            margin-bottom: 20px;
+        }
 
         /* Hamburger Menu */
-        .hamburger {
-            position: absolute;
-            right: 0px;
-            top: 50%;
-            transform: translateY(-50%);
+         .hamburger {
+            position: relative;  /* Change from absolute to relative */
             width: 30px;
             height: 25px;
             background: none;
@@ -57,6 +51,24 @@
             flex-direction: column;
             justify-content: space-between;
             z-index: 1001;
+            transform: none;  /* Remove the transform */
+            top: auto;  /* Remove the top property */
+            right: auto;  /* Remove the right property */
+        }
+
+        /* Add these utility classes */
+        .left-section {
+            flex: 1;
+        }
+
+        .right-section {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .logo {
+            margin: 0;
+            padding: 0;
         }
 
         .hamburger span {
@@ -119,9 +131,10 @@
 
         header {
             margin-bottom: 40px;
+            margin-top: 12rem;
         }
 
-        h1 {
+        h2 {
             font-size: 56px;
             font-weight: 700;
             margin-bottom: 5px;
@@ -194,7 +207,7 @@
         }
 
         @media (max-width: 768px) {
-            h1 {
+            h2 {
                 font-size: 42px;
             }
 
@@ -272,13 +285,21 @@
     <div class="container">
         <!-- Navigation Buttons with Hamburger -->
         <div class="nav-buttons">
-            <button class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            
-            <!-- Fullscreen Menu -->
+            <div class="left-section">
+                <div class="logo">
+                        <h1>PlayZ</h1>
+                    </div>
+            </div>
+            <div class="right-section">
+                <button class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Fullscreen Menu -->
             <div class="fullscreen-menu">
                 <nav>
                     <ul>
@@ -287,11 +308,10 @@
                     </ul>
                 </nav>
             </div>
-        </div>
 
         <!-- Header Content -->
         <header>
-            <h1>Playz</h1>
+            <h2>Playz</h2>
             <p class="tagline">an open-source online multiplayer site</p>
         </header>
 
