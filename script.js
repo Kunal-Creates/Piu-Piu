@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'snake', name: 'Classical Snake', image: 'Images/classical-snake.png' },
             { id: 'tetris', name: 'Tetris Puzzle', image: 'Images/Tetris.png' },
             { id: 'whack-a-hole', name: 'Whack a Hole', image: 'Images/Whack-a-Hole.png' },
-            { id: 'bloom', name: 'Bloom', image: 'placeholder-6.jpg' },
+            { id: 'bloom', name: 'Bloom', image: 'Images/Bloom.png' },
             { id: 'pixel-runner', name: 'Pixel Run', image: 'Images/Pixel-Runner.png' },
-            { id: 'dogher', name: 'Dogher', image: 'placeholder-1.jpg' },
+            { id: 'dodger', name: 'Dodger', image: 'Images/Dodger.png' },
             
         ],
         multi: [
