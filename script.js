@@ -32,10 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'pixel-runner', name: 'Pixel Run', image: 'Images/Pixel-Runner.png' },
             { id: 'dodger', name: 'Dodger', image: 'Images/Dodger.png' },
             
+            
         ],
         multi: [
             { id: 'tic-tac-toe', name: 'Tic-Tac-Toe', image: 'Images/tic-tac-toe.png' },
-            { id: 'rocket-league', name: 'Rocket League', image: 'placeholder-12.jpg' },
+            { id: 'broken-platform', name: 'Broken Platform', image: 'Images/broken-platform.png' },
             { id: 'chess-retro', name: 'Retro Chess', image: 'Images/chess.png' },
         ]
     };
