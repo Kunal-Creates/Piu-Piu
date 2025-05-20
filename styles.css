@@ -140,12 +140,12 @@ body {
     color: #000;
     border: none;
     border-radius: 12px;
-    padding: 12px 0;
+    padding: 10px 0;
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-speed) ease;
     width: clamp(85px, 15vw, 160px); /* Responsive width */
-    font-size: clamp(10px, 2.5vw, 16px); /* Responsive font size */
+    font-size: clamp(12px, 2.5vw, 16px); /* Responsive font size */
     outline: none;
     position: relative;
     overflow: hidden;
