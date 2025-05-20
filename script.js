@@ -23,21 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const games = {
         single: [
-            { id: 'truck-tunk', name: 'Truck Tunk', image: 'Images/truck-tunk.png' },
-            { id: 'color-chaser', name: 'Color Chaser', image: 'Images/color-chaser.png' },
-            { id: 'snake', name: 'Classical Snake', image: 'Images/classical-snake.png' },
-            { id: 'tetris', name: 'Tetris Puzzle', image: 'Images/Tetris.png' },
-            { id: 'whack-a-hole', name: 'Whack a Hole', image: 'Images/Whack-a-Hole.png' },
-            { id: 'bloom', name: 'Bloom', image: 'Images/Bloom.png' },
-            { id: 'pixel-runner', name: 'Pixel Run', image: 'Images/Pixel-Runner.png' },
-            { id: 'dodger', name: 'Dodger', image: 'Images/Dodger.png' },
+            { id: 'truck-tunk', name: 'Truck Tunk', image: 'Images/truck-tunk.webp' },
+            { id: 'color-chaser', name: 'Color Chaser', image: 'Images/color-chaser.webp' },
+            { id: 'snake', name: 'Classical Snake', image: 'Images/classical-snake.webp' },
+            { id: 'tetris', name: 'Tetris Puzzle', image: 'Images/Tetris.webp' },
+            { id: 'whack-a-hole', name: 'Whack a Hole', image: 'Images/Whack-a-Hole.webp' },
+            { id: 'bloom', name: 'Bloom', image: 'Images/Bloom.webp' },
+            { id: 'pixel-runner', name: 'Pixel Run', image: 'Images/Pixel-Runner.webp' },
+            { id: 'dodger', name: 'Dodger', image: 'Images/Dodger.webp' },
             
             
         ],
         multi: [
-            { id: 'tic-tac-toe', name: 'Tic-Tac-Toe', image: 'Images/tic-tac-toe.png' },
-            { id: 'broken-platform', name: 'Broken Platform', image: 'Images/broken-platform.png' },
-            { id: 'chess-retro', name: 'Retro Chess', image: 'Images/chess.png' },
+            { id: 'tic-tac-toe', name: 'Tic-Tac-Toe', image: 'Images/tic-tac-toe.webp' },
+            { id: 'broken-platform', name: 'Broken Platform', image: 'Images/broken-platform.webp' },
+            { id: 'chess-retro', name: 'Retro Chess', image: 'Images/chess.webp' },
         ]
     };
 
