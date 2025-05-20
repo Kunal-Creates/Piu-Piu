@@ -1,23 +1,83 @@
 {
-  "name": "PlayZ",
+  "name": "PlayZ - Browser Games Collection",
   "short_name": "PlayZ",
-  "description": "A collection of fun browser games",
-  "start_url": "/",
+  "description": "A collection of fun browser games including Snake, Tetris, Chess, and more",
+  "start_url": "./index.html",
+  "scope": "/",
+  "id": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#ffffff",
   "theme_color": "#000000",
+  "categories": ["games", "entertainment"],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "edge_side_panel": {
+    "preferred_width": 480
+  },
+  "shortcuts": [
+    {
+      "name": "Play Solo Games",
+      "url": "/index.html",
+      "description": "Quick access to single-player games"
+    },
+    {
+      "name": "Play Multiplayer",
+      "url": "/index.html?mode=multi",
+      "description": "Quick access to multiplayer games"
+    }
+  ],
   "icons": [
     {
       "src": "Images/Favicon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "Images/Favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "Images/Favicon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "Images/Favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+playz",
+      "url": "/?game=%s"
+    }
+  ],
+  "prefer_related_applications": false,
+  "lang": "en",
+  "dir": "ltr",
+  "screenshots": [
+    {
+      "src": "Images/Tetris.webp",
+      "sizes": "1280x720",
+      "type": "image/webp",
+      "platform": "wide",
+      "label": "Tetris gameplay in PlayZ"
+    },
+    {
+      "src": "Images/chess.webp",
+      "sizes": "1280x720",
+      "type": "image/webp",
+      "platform": "wide",
+      "label": "Chess gameplay in PlayZ"
     }
   ]
 }

@@ -115,3 +115,12 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
+// Temporary code to unregister old service worker - remove after running once
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.unregister();
+    }
+  });
+}

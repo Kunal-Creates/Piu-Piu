@@ -30,21 +30,45 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // If we have a cached response, return it immediately
         if (response) {
           return response;
         }
-        return fetch(event.request)
-          .then(response => {
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
+
+        // Clone the request - a request is a stream and can only be consumed once
+        const fetchRequest = event.request.clone();
+
+        // Make the network request
+        return fetch(fetchRequest).then(response => {
+          // Check if we received a valid response
+          if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
-          });
+          }
+
+          // Handle redirects specially for Safari
+          if (response.redirected) {
+            // Create a new response rather than using the redirected response directly
+            return Response.redirect(response.url, response.status);
+          }
+
+          // Clone the response - a response is a stream and can only be consumed once
+          const responseToCache = response.clone();
+
+          // Add the response to the cache
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+
+          return response;
+        });
+      })
+      .catch(() => {
+        // If both cache and network fail, return a fallback offline page
+        if (event.request.mode === 'navigate') {
+          return caches.match('/index.html');
+        }
+        return new Response('Offline content not available');
       })
   );
 });
