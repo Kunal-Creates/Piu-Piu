@@ -1,11 +1,12 @@
-const CACHE_NAME = 'playz-v1';
+const CACHE_NAME = 'playz-v2';
+const BASE_URL = 'https://playz.pages.dev';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/about.html',
-  '/styles.css',
-  '/script.js',
-  '/Images/Favicon.png',
+  `${BASE_URL}/`,
+  `${BASE_URL}/index.html`,
+  `${BASE_URL}/about.html`,
+  `${BASE_URL}/styles.css`,
+  `${BASE_URL}/script.js`,
+  `${BASE_URL}/Images/Favicon.png`,
   '/Images/Bloom.webp',
   '/Images/broken-platform.webp',
   '/Images/chess.webp',
@@ -27,6 +28,24 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Handle navigation requests separately
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.match(event.request)
+            .then(response => {
+              if (response) {
+                return response;
+              }
+              // If the specific page is not in cache, return the index page
+              return caches.match(`${BASE_URL}/index.html`);
+            });
+        })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
