@@ -25,6 +25,7 @@ body {
     display: flex;
     justify-content: center;
     line-height: 1.5;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .container {
@@ -41,13 +42,14 @@ body {
     background-color: var(--background-color);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    width: 100%;
 }
 
 .nav-wrapper {
     position: relative;
     max-width: 1200px;
     width: 100%;
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
 }
 
 .nav-buttons {
@@ -77,13 +79,14 @@ body {
 
 .left-section {
     flex: 1;
+    min-width: 80px; /* Ensure logo has minimum space */
 }
 
 .center-section {
     flex: 2;
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: clamp(0.5rem, 2vw, 1rem); /* Responsive gap */
     font-family: Oswald, sans-serif;
 }
 
@@ -91,6 +94,7 @@ body {
     flex: 1;
     display: flex;
     justify-content: flex-end;
+    min-width: 30px; /* Ensure hamburger has minimum space */
 }
 
 /* Logo Styling */
@@ -111,6 +115,8 @@ body {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+    font-size: clamp(1.2rem, 4vw, 2rem); /* Responsive font size */
+    white-space: nowrap; /* Prevent line break */
 }
 
 .logo .highlight {
@@ -138,8 +144,8 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-speed) ease;
-    width: 160px;
-    font-size: 16px;
+    width: clamp(85px, 15vw, 160px); /* Responsive width */
+    font-size: clamp(10px, 2.5vw, 16px); /* Responsive font size */
     outline: none;
     position: relative;
     overflow: hidden;
@@ -190,8 +196,8 @@ body {
 /* Hamburger Menu */
 .hamburger {
     position: relative;
-    width: 30px;
-    height: 25px;
+    width: clamp(25px, 5vw, 30px); /* Responsive width */
+    height: clamp(20px, 4vw, 25px); /* Responsive height */
     background: none;
     border: none;
     cursor: pointer;
@@ -204,16 +210,15 @@ body {
 
 .hamburger span {
     width: 100%;
-    height: 3px;
+    height: clamp(2px, 0.5vw, 3px); /* Responsive height */
     background-color: var(--primary-color);
     transition: all var(--transition-speed) ease;
     border-radius: 3px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Returning to original animation style as requested */
 .hamburger.active span:nth-child(1) {
-    transform: translateY(11px) rotate(45deg);
+    transform: translateY(calc(clamp(9px, 45%, 11px))) rotate(45deg);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -221,7 +226,7 @@ body {
 }
 
 .hamburger.active span:nth-child(3) {
-    transform: translateY(-11px) rotate(-45deg);
+    transform: translateY(calc(-1 * clamp(9px, 45%, 11px))) rotate(-45deg);
 }
 
 /* Fullscreen Menu */
@@ -252,10 +257,12 @@ body {
 .fullscreen-menu nav ul {
     list-style: none;
     text-align: center;
+    padding: 0; /* Remove default padding */
+    width: 100%; /* Ensure full width */
 }
 
 .fullscreen-menu nav ul li {
-    margin: 30px 0;
+    margin: clamp(15px, 5vh, 30px) 0; /* Responsive margin */
     transform: translateY(20px);
     opacity: 0;
     transition: all 0.5s ease;
@@ -277,11 +284,12 @@ body {
 .fullscreen-menu nav ul li a {
     color: var(--text-color);
     text-decoration: none;
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2rem); /* Responsive font size */
     font-weight: 500;
     transition: color var(--transition-speed) ease;
     position: relative;
     padding: 5px 10px;
+    display: inline-block; /* Better tap targets on mobile */
 }
 
 .fullscreen-menu nav ul li a:before {
@@ -299,17 +307,18 @@ body {
     color: var(--primary-color);
 }
 
-.fullscreen-menu nav ul li a:hover:before {
+.fullscreen-menu nav ul li a:hover:before,
+.fullscreen-menu nav ul li a:focus:before {
     width: 100%;
 }
 
 /* Game Grid */
 .game-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 30px;
-    margin-top: 60px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+    gap: clamp(15px, 3vw, 30px);
+    margin-top: clamp(40px, 6vh, 60px);
+    margin-bottom: clamp(20px, 3vh, 30px);
 }
 
 .game-card {
@@ -339,32 +348,24 @@ body {
     transform: scale(1.05);
 }
 
-/* Responsive Design */
+/* Responsive Design - Simplified and optimized */
 @media (max-width: 992px) {
     .container {
-        padding: 12px;
+        padding: 15px;
     }
     
     .nav-buttons {
         padding: 1rem 1.5rem;
-        gap: 15px;
-    }
-    
-    .nav-btn {
-        width: 140px;
-        font-size: 14px;
     }
 }
 
 @media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: 12px;
     }
     
     .game-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-        margin-top: 50px;
+        grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
     }
     
     .nav-wrapper {
@@ -372,20 +373,7 @@ body {
     }
     
     .nav-buttons {
-        padding: 1rem;
-        gap: 8px;
         border-radius: 0 0 12px 12px;
-    }
-    
-    .center-section {
-        flex: 3;
-    }
-    
-    .nav-btn {
-        width: 120px;
-        font-size: 13px;
-        padding: 10px 0;
-        border-radius: 10px;
     }
     
     .nav-indicator {
@@ -393,92 +381,61 @@ body {
     }
 }
 
-@media (max-width: 600px) {
-    .nav-buttons {
-        padding: 0.9rem 0.7rem;
-    }
-    
-    .center-section {
-        gap: 6px;
-    }
-    
-    .nav-btn {
-        width: 110px;
-        font-size: 12px;
-        padding: 9px 0;
-        letter-spacing: 0.3px;
-    }
-    
-    .logo h1 {
-        font-size: 1.6rem;
-    }
-}
-
-/* For very small screens */
 @media (max-width: 480px) {
     .container {
         padding: 8px;
     }
     
-    .game-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 40px;
-    }
-    
     .nav-buttons {
-        padding: 0.8rem 0.5rem;
+        padding: 0.7rem 0.5rem;
+        gap: 10px;
     }
     
-    .center-section {
-        gap: 4px;
-    }
-    
-    .nav-btn {
-        width: 100px;
-        font-size: 11px;
-        padding: 8px 0;
-        border-radius: 8px;
-    }
-    
-    .logo h1 {
-        font-size: 1.4rem;
-    }
-    
-    .hamburger {
-        width: 25px;
-        height: 20px;
-    }
-    
-    .hamburger span {
-        height: 2px;
-    }
-    
-    .hamburger.active span:nth-child(1) {
-        transform: translateY(9px) rotate(45deg);
-    }
-    
-    .hamburger.active span:nth-child(3) {
-        transform: translateY(-9px) rotate(-45deg);
+    .game-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
 }
 
-@media (max-width: 360px) {
-    .nav-buttons {
-        padding: 0.7rem 0.4rem;
+/* Touch device optimizations */
+@media (hover: none) {
+    .nav-btn:hover {
+        transform: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     
-    .center-section {
-        gap: 3px;
+    .highlight:hover {
+        transform: scale(1.2);
+        text-shadow: 0 0 10px rgba(232, 240, 70, 0.5);
     }
     
-    .nav-btn {
-        width: 85px;
-        font-size: 10px;
-        padding: 7px 0;
+    .game-card:hover {
+        transform: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
     
-    .logo h1 {
-        font-size: 1.2rem;
+    .game-card:hover img {
+        transform: none;
+    }
+    
+    /* Add active states for touch devices */
+    .nav-btn:active {
+        transform: translateY(1px);
+    }
+    
+    .game-card:active {
+        transform: translateY(-3px);
+    }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }
