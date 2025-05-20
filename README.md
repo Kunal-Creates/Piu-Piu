@@ -79,7 +79,7 @@ This project is licensed under the [MIT License](LICENSE). Feel free to use, mod
 ## 🌐 Live Demo
 
 Experience PlayZ in action:  
-🔗 **[https://kunal-creates.github.io/PlayZ/](https://kunal-creates.github.io/PlayZ/)**
+🔗 **https://playz.pages.dev**
 
 ---
 
