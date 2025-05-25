@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const games = {
         single: [
             { id: 'truck-tunk', name: 'Truck Tunk', image: 'Images/truck-tunk.webp' },
+            { id: 'sudoku', name: 'Sudoku', image: 'Images/Sudoku.webp' },
             { id: 'color-chaser', name: 'Color Chaser', image: 'Images/color-chaser.webp' },
             { id: 'snake', name: 'Classical Snake', image: 'Images/classical-snake.webp' },
             { id: 'tetris', name: 'Tetris Puzzle', image: 'Images/Tetris.webp' },
