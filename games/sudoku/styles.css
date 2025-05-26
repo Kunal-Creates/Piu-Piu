@@ -424,6 +424,9 @@ body {
     .level-value {
         font-size: 14px;
     }
+    .sudoku-container {
+        margin: 0;
+    }
 }
 
 @media (max-width: 360px) {
@@ -442,5 +445,8 @@ body {
     .num-btn {
         font-size: 9px;
         min-height: 32px;
+    }
+    .sudoku-container {
+        margin: 0;
     }
 }
