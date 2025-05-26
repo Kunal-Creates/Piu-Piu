@@ -383,6 +383,9 @@ body {
     .clear-btn {
         font-size: 8px;
     }
+    .sudoku-container {
+        margin: 8px 0;
+    }
 }
 
 @media (max-width: 480px) {
