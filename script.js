@@ -104,16 +104,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Register Service Worker
+// Service Worker Registration - Development Mode Control
+const DEVELOPMENT_MODE = true; // Set to false for production
+
+// Register Service Worker (disabled in development mode)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('ServiceWorker registration successful');
-            })
-            .catch(err => {
-                console.log('ServiceWorker registration failed: ', err);
+        if (DEVELOPMENT_MODE) {
+            // Unregister existing service workers in development mode
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('ServiceWorker unregistered for development');
+                }
             });
+            
+            // Clear caches in development mode
+            if (window.caches) {
+                caches.keys().then(cacheNames => {
+                    cacheNames.forEach(cacheName => {
+                        caches.delete(cacheName);
+                        console.log(`Cache ${cacheName} deleted for development`);
+                    });
+                });
+            }
+        } else {
+            // Register service worker in production mode
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registration successful');
+                })
+                .catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        }
     });
 }
 

@@ -1,5 +1,9 @@
+// Service Worker Configuration
 const CACHE_NAME = 'playz-v2';
 const BASE_URL = 'https://playz.pages.dev';
+
+// List of resources that would be cached in production
+// Currently not being used during development
 const urlsToCache = [
   `${BASE_URL}/`,
   `${BASE_URL}/index.html`,
@@ -20,88 +24,35 @@ const urlsToCache = [
   '/Images/Whack-a-Hole.webp'
 ];
 
+// Skip caching during installation
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-  );
+  // Skip the waiting phase
+  self.skipWaiting();
+  console.log('Service Worker installed - caching disabled for development');
 });
 
+// Network-first strategy for all fetch requests during development
 self.addEventListener('fetch', event => {
-  // Handle navigation requests separately
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          return caches.match(event.request)
-            .then(response => {
-              if (response) {
-                return response;
-              }
-              // If the specific page is not in cache, return the index page
-              return caches.match(`${BASE_URL}/index.html`);
-            });
-        })
-    );
-    return;
-  }
-
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // If we have a cached response, return it immediately
-        if (response) {
-          return response;
-        }
-
-        // Clone the request - a request is a stream and can only be consumed once
-        const fetchRequest = event.request.clone();
-
-        // Make the network request
-        return fetch(fetchRequest).then(response => {
-          // Check if we received a valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Handle redirects specially for Safari
-          if (response.redirected) {
-            // Create a new response rather than using the redirected response directly
-            return Response.redirect(response.url, response.status);
-          }
-
-          // Clone the response - a response is a stream and can only be consumed once
-          const responseToCache = response.clone();
-
-          // Add the response to the cache
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-
-          return response;
-        });
-      })
+    fetch(event.request)
       .catch(() => {
-        // If both cache and network fail, return a fallback offline page
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
-        return new Response('Offline content not available');
+        console.log('Fetch failed, trying cache for:', event.request.url);
+        return caches.match(event.request);
       })
   );
 });
 
+// When activated, clear all existing caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
+      console.log('Clearing all caches during development');
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
+        cacheNames.map(cacheName => caches.delete(cacheName))
       );
+    }).then(() => {
+      console.log('All caches cleared successfully');
+      return self.clients.claim();
     })
   );
 });
